@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book an Appointment | WebSwan Digital Marketing Solutions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html { scroll-behavior: smooth; height: 100%; }
+        body {
+            margin: 0;
+            background: #f9fcff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #222;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        .main-header {
+            background: #1E2E6D;
+            color: #ffffcc;
+            text-align: center;
+            padding: 1.1rem 0 1.25rem 0;
+            margin-bottom: 0;
+            border-radius: 0 0 1.35rem 1.35rem;
+            box-shadow: 0 2px 12px 0 rgba(30,46,109,0.08);
+            font-family: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .smile-anim {
+            font-size: 2.9rem;
+            margin-bottom: 0.11em;
+            margin-top: -0.4em;
+            display: block;
+            line-height: 1;
+            animation: smile-rock 2.4s cubic-bezier(.36,.07,.19,.97) infinite;
+            will-change: transform;
+            pointer-events: none;
+            user-select: none;
+            filter: drop-shadow(0 1px 6px rgba(30,46,109,0.09));
+        }
+        @keyframes smile-rock {
+            0% { transform: rotate(-10deg);}
+            20% { transform: rotate(6deg);}
+            50% { transform: rotate(-7deg);}
+            80% { transform: rotate(7deg);}
+            100% { transform: rotate(-10deg);}
+        }
+        .main-header-title {
+            font-size: 1.13rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.32rem;
+            line-height: 1.12;
+            text-shadow: 0 1px 2px rgba(30,46,109,0.12);
+        }
+        .main-header-subtitle {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            margin-top: 0;
+            margin-bottom: 0;
+            line-height: 1.2;
+            text-shadow: 0 1px 2px rgba(30,46,109,0.11);
+        }
+        .calendar-shell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            flex-grow: 1;
+        }
+        .calendar-container {
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(60,60,80,0.16), 0 2px 10px 0 rgba(60,60,80,0.12);
+            max-width: 370px;
+            margin-top: 6vh;
+            width: 96vw;
+            padding-bottom: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .calendar-header {
+            display: none;
+        }
+        .calendar-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1.3rem 0.3rem 1.3rem;
+            width: 100%;
+        }
+        .calendar-toolbar button {
+            background: none;
+            border: none;
+            color: #444;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-weight: 900;
+            padding: 0 0.4rem;
+        }
+        .calendar-toolbar span {
+            font-size: 1.08rem;
+            font-weight: 600;
+            color: #222;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+            padding: 0.5rem 1.2rem 1.1rem 1.2rem;
+            background: #fff;
+            width: 100%;
+        }
+        .calendar-dayname {
+            font-weight: 600;
+            text-align: center;
+            color: #444;
+            padding-bottom: 0.3rem;
+            font-size: 0.97rem;
+        }
+        .calendar-day {
+            text-align: center;
+            padding: 0.36rem 0;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            color: #444;
+            border: none;
+            background: none;
+            position: relative;
+        }
+        .calendar-day.today {
+            border: 2px solid #3587f7;
+            color: #3587f7;
+        }
+        .calendar-day.selected {
+            background: #3587f7 !important;
+            color: #fff !important;
+            font-weight: 600;
+        }
+        .calendar-day.blocked {
+            background: #e38185 !important;
+            color: #fff !important;
+            font-weight: 600;
+            cursor: not-allowed;
+        }
+        .calendar-day.closed {
+            background: none !important;
+            color: #bbb !important;
+            cursor: not-allowed;
+        }
+        .calendar-day.closed:hover::after {
+            content: "Closed";
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            font-size: 0.85rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.4rem;
+            margin-top: 0.3rem;
+            white-space: nowrap;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .calendar-day.blocked:hover::after {
+            content: "Blocked";
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            background: #e38185;
+            color: #fff;
+            font-size: 0.85rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.4rem;
+            margin-top: 0.3rem;
+            white-space: nowrap;
+            z-index: 5;
+            pointer-events: none;
+        }
+        /* Time modal */
+        .modal-bg, .modal-bg-time, .modal-bg-admin {
+            position: fixed;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(10,30,60,0.23);
+            z-index: 1002;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-bg.active, .modal-bg-time.active, .modal-bg-admin.active {
+            display: flex;
+        }
+        .modal-content, .modal-content-time, .modal-content-admin {
+            background: #fff;
+            padding: 1.2rem 1.1rem 1.1rem 1.1rem;
+            border-radius: 1.1rem;
+            max-width: 340px;
+            width: 96vw;
+            box-shadow: 0 8px 32px 0 rgba(60,60,80,0.16), 0 2px 10px 0 rgba(60,60,80,0.12);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-content-time label {
+            margin-bottom: 0.7rem;
+            font-size: 1.07rem;
+            font-weight: 600;
+            color: #1551b5;
+            display: block;
+            text-align: center;
+            margin-top: 0.2rem;
+        }
+        .modal-content-time select {
+            width: 94%;
+            padding: 0.68rem;
+            border: 1px solid #d4d8e3;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+            background: #fafdff;
+            margin-bottom: 0.25rem;
+            box-sizing: border-box;
+        }
+        .close-modal, .close-modal-time, .close-modal-admin {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #888;
+            cursor:pointer;
+        }
+        .modal-content h3 {
+            margin: 0 0 1.1rem 0;
+            color: #1551b5;
+            font-size: 1.19rem;
+            text-align:center;
+        }
+        .booking-form label {
+            display: block;
+            margin: 0.7rem 0 0.18rem 0;
+            font-size: 0.98rem;
+            color: #222;
+        }
+        .booking-form input,
+        .booking-form select {
+            width: 100%;
+            padding: 0.66rem;
+            border: 1px solid #d4d8e3;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+            background: #fafdff;
+            margin-bottom: 0.22rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .booking-form input:focus,
+        .booking-form select:focus {
+            border-color: #1551b5;
+            outline: none;
+        }
+        .booking-form button {
+            background: linear-gradient(90deg, #1551b5 60%, #2292d1 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.08rem;
+            padding: 0.8rem 0;
+            border: none;
+            border-radius: 0.8rem;
+            width: 100%;
+            margin-top: 0.8rem;
+            box-shadow: 0 2px 8px rgba(20,80,180,0.07);
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .booking-form button:hover {
+            background: linear-gradient(90deg, #2292d1 0%, #1551b5 100%);
+            box-shadow: 0 4px 16px rgba(20,80,180,0.13);
+        }
+        /* Admin button right under calendar */
+        .admin-login-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 0 1.7rem 0;
+            width: 100%;
+        }
+        .admin-login-btn {
+            border: none;
+            background: none;
+            color: #a9a9a9;
+            font-size: 1.08rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: underline;
+            margin: 0;
+            cursor: pointer;
+            border-radius: 1.2rem;
+            padding: 0.18rem 1rem 0.18rem 1rem;
+            box-shadow: none;
+            outline: none;
+            transition: color 0.18s;
+            opacity: 1;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+        .admin-login-btn:active, .admin-login-btn:focus {
+            color: #3587f7;
+            text-decoration: underline;
+            outline: none;
+        }
+        .admin-login-btn:hover {
+            color: #a9a9a9; /* no color change on hover */
+        }
+        @media (max-width: 600px) {
+            .calendar-container { max-width: 99vw; }
+            .main-header-title { font-size: 0.95rem; }
+            .main-header-subtitle { font-size: 1.06rem; }
+            .main-header { padding: 0.68rem 0 0.82rem 0; }
+            .calendar-header { font-size: 1.1rem; padding: 1rem 0.4rem 0.7rem 0.4rem; }
+            .calendar-grid { padding: 0.5rem 0.2rem 1.1rem 0.2rem; }
+            .admin-login-btn { font-size: 1rem; }
+            .admin-login-wrap { margin-bottom: 1.07rem; }
+            .smile-anim { font-size: 2.2rem; }
+        }
+        .modal-bg, .modal-bg-time, .modal-bg-admin { scrollbar-width: none; }
+        .modal-bg::-webkit-scrollbar, .modal-bg-time::-webkit-scrollbar, .modal-bg-admin::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <span class="smile-anim" role="img" aria-label="Smiling Face">😀</span>
+        <span class="main-header-title">The WebSwan Digital Marketing Solution</span>
+        <span class="main-header-subtitle">Book an Appointment</span>
+    </div>
+    <div class="calendar-shell" id="book-appointment">
+        <div class="calendar-container">
+            <div class="calendar-header"></div>
+            <div class="calendar-toolbar">
+                <button id="prevMonth">&lt;</button>
+                <span id="calendarMonthYear"></span>
+                <button id="nextMonth">&gt;</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="admin-login-wrap">
+                <button class="admin-login-btn" id="adminLoginBtn" type="button">Admin Login</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-bg-time" id="timeModalBg">
+        <div class="modal-content-time">
+            <button class="close-modal-time" onclick="closeTimeModal()">&times;</button>
+            <label for="modalTimeSelect">Select Appointment Time</label>
+            <select id="modalTimeSelect">
+                <option value="">Choose a time...</option>
+            </select>
+            <button class="booking-form" id="chooseTimeBtn" style="margin-top:0.8rem;">Continue</button>
+        </div>
+    </div>
+    <div class="modal-bg" id="modalBg">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModalBtn" title="Close">&times;</button>
+            <h3>Book Your Appointment</h3>
+            <form class="booking-form" id="bookingForm" autocomplete="off" action="https://formspree.io/f/mzzvlrwg" method="POST">
+                <input type="hidden" id="bf-date" name="date">
+                <input type="hidden" id="bf-hour" name="hour">
+                <label for="bf-name">Your Name</label>
+                <input type="text" id="bf-name" name="name" required placeholder="Full name">
+                <label for="bf-phone">Phone Number</label>
+                <input type="tel" id="bf-phone" name="phone" required placeholder="(555) 555-5555">
+                <label for="bf-email">Email</label>
+                <input type="email" id="bf-email" name="email" required placeholder="your@email.com">
+                <label for="bf-purpose">Reason for Appointment</label>
+                <select id="bf-purpose" name="purpose" required>
+                    <option value="">Select purpose...</option>
+                    <option>FREE-Demo 15 minutes presentation</option>
+                    <option>Interested in collaborating</option>
+                    <option>Need a free demo</option>
+                    <option>Need reputation management</option>
+                    <option>Need your service</option>
+                    <option>Create a calendar for me</option>
+                    <option>Create a form for lead generation for me</option>
+                    <option>Need a landing page</option>
+                    <option>Need a zoom meeting</option>
+                    <option>Need a phone appointment</option>
+                </select>
+                <label for="bf-timezone">Time Zone</label>
+                <select id="bf-timezone" name="timezone" required>
+                    <option value="">Select time zone...</option>
+                    <option value="PST">Pacific Standard Time (PST)</option>
+                    <option value="MST">Mountain Standard Time (MST)</option>
+                    <option value="CST">Central Standard Time (CST)</option>
+                    <option value="EST">Eastern Standard Time (EST)</option>
+                </select>
+                <label for="bf-besttime">Best Time to Contact</label>
+                <select id="bf-besttime" name="besttime" required>
+                    <option value="">Choose...</option>
+                    <option>Morning</option>
+                    <option>Afternoon</option>
+                    <option>Evening</option>
+                </select>
+                <label for="bf-bestway">Best Way to Contact</label>
+                <select id="bf-bestway" name="bestway" required>
+                    <option value="">Choose...</option>
+                    <option>Call</option>
+                    <option>Text</option>
+                    <option>Email</option>
+                </select>
+                <label for="bf-notes">Additional Comments</label>
+                <input type="text" id="bf-notes" name="notes" placeholder="Anything else?">
+                <button type="submit">Book Appointment</button>
+            </form>
+        </div>
+    </div>
+    <div class="modal-bg-admin" id="adminModalBg">
+        <div class="modal-content-admin">
+            <button class="close-modal-admin" onclick="closeAdminModal()">&times;</button>
+            <h3 style="margin-bottom:1.1rem;margin-top:0">Admin Login</h3>
+            <form id="adminLoginForm" autocomplete="off" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <input type="password" id="adminPassword" style="width:90%;margin-bottom:1.1rem;padding:0.7rem;border-radius:0.7rem;border:1.3px solid #aaa;font-size:1rem;" placeholder="Enter Password" autocomplete="new-password" />
+                <button type="submit" style="width:92%;margin-bottom:0.2rem;background:#3587f7;color:#fff;border:none;border-radius:0.7rem;padding:0.7rem;font-size:1.1rem;font-weight:600;cursor:pointer;">Login</button>
+                <div id="adminLoginError" style="margin-top:0.7rem;color:#d22;font-size:0.95rem;display:none;"></div>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Smooth scroll for external links to the calendar section
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash;
+            if (hash && hash === '#book-appointment') {
+                const targetElement = document.querySelector(hash);
+                if (targetElement) {
+                    const headerOffset = 120; // Adjust if your header height changes
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }, 10);
+                }
+            }
+        });
+
+        // --- CALENDAR LOGIC ---
+        const calendarGrid = document.getElementById('calendarGrid');
+        const monthYear = document.getElementById('calendarMonthYear');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const modalBg = document.getElementById('modalBg');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const bookingForm = document.getElementById('bookingForm');
+        const bfDate = document.getElementById('bf-date');
+        const bfHour = document.getElementById('bf-hour');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        // Time modal
+        const timeModalBg = document.getElementById('timeModalBg');
+        const timeSelect = document.getElementById('modalTimeSelect');
+        const chooseTimeBtn = document.getElementById('chooseTimeBtn');
+        // Admin modal
+        const adminModalBg = document.getElementById('adminModalBg');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminPassword = document.getElementById('adminPassword');
+        const adminLoginError = document.getElementById('adminLoginError');
+        // State
+        let calendarDate = new Date();
+        let bookings = [];
+        let blockedDays = [];
+        let blockedTimes = {};
+        const today = new Date();
+        
+        // Calendar rendering
+        function isWeekend(year, month, day) {
+            const d = new Date(year, month, day);
+            return d.getDay() === 6 || d.getDay() === 0;
+        }
+
+        function renderCalendar(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            monthYear.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+            const firstDay = new Date(year, month, 1);
+            const startDay = firstDay.getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            let html = '';
+            const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+            for (let d=0; d<7; d++) {
+                html += `<div class="calendar-dayname">${dayNames[d]}</div>`;
+            }
+            let day = 1;
+            for (let i = 0; i < 6*7; i++) {
+                if (i < startDay || day > lastDate) {
+                    html += `<div></div>`;
+                } else {
+                    let blocked = blockedDays.includes(day);
+                    let weekend = isWeekend(year, month, day);
+                    let isToday = (year === today.getFullYear() && month === today.getMonth() && day === today.getDate());
+                    let classes = "calendar-day";
+                    if (isToday) classes += " today";
+                    if (blocked) classes += " blocked";
+                    if (!blocked && weekend) classes += " closed";
+                    html += `<button class="${classes}" data-date="${year}-${(month+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}" ${blocked||weekend?'disabled':''}>${day}</button>`;
+                    day++;
+                }
+            }
+            calendarGrid.innerHTML = html;
+            document.querySelectorAll('.calendar-day:not(.blocked):not(.closed)').forEach(btn=>{
+                btn.onclick = () => openTimeModal(btn.dataset.date);
+            });
+        }
+        prevMonthBtn.onclick = () => {
+            calendarDate.setMonth(calendarDate.getMonth()-1);
+            renderCalendar(calendarDate);
+        };
+        nextMonthBtn.onclick = () => {
+            calendarDate.setMonth(calendarDate.getMonth()+1);
+            renderCalendar(calendarDate);
+        };
+        renderCalendar(calendarDate);
+        
+        // --- TIME MODAL FLOW ---
+        let currentSelectedDate = null;
+        function openTimeModal(date) {
+            currentSelectedDate = date;
+            timeSelect.innerHTML = '<option value="">Choose a time...</option>';
+            for(let h=10; h<=20; h++) {
+                let hour12 = h > 12 ? h-12 : h;
+                let ampm = h < 12 ? "am" : "pm";
+                let label = `${hour12}:00 ${ampm}`;
+                let value = `${h.toString().padStart(2,"0")}:00`;
+                let booked = bookings.filter(b=>b.date===date).map(b=>b.hour);
+                let disabled = booked.includes(value) || (blockedTimes[date] && blockedTimes[date].includes(value));
+                timeSelect.innerHTML += `<option value="${value}" ${disabled?'disabled':''}>${label}${disabled?' (Unavailable)':''}</option>`;
+            }
+            timeModalBg.classList.add('active');
+        }
+        function closeTimeModal() { timeModalBg.classList.remove('active'); }
+        chooseTimeBtn.onclick = function() {
+            if(!timeSelect.value) { timeSelect.focus(); return; }
+            bfDate.value = currentSelectedDate;
+            bfHour.value = timeSelect.value;
+            // No need to reset the form, just open the modal.
+            modalBg.classList.add('active');
+        };
+        // Modal close logic
+        closeModalBtn.onclick = () => modalBg.classList.remove('active');
+        modalBg.onclick = (e) => { if(e.target === modalBg) closeModalBtn.onclick(); }
+        timeModalBg.onclick = (e) => { if(e.target === timeModalBg) closeTimeModal(); }
+        
+        // --- BOOKING FORM SUBMIT (No change needed with Formspree) ---
+        // Formspree handles the submission directly. 
+        
+        // --- ADMIN LOGIN MODAL LOGIC ---
+        adminLoginBtn.onclick = function() {
+            adminModalBg.classList.add('active');
+            adminPassword.value = "";
+            adminLoginError.style.display = "none";
+            setTimeout(()=>{ adminPassword.focus(); }, 100);
+        };
+        function closeAdminModal() {
+            adminModalBg.classList.remove('active');
+            adminPassword.value = "";
+            adminLoginError.style.display = "none";
+        }
+        adminModalBg.onclick = (e) => { if(e.target===adminModalBg) closeAdminModal(); }
+        adminLoginForm.onsubmit = function(e) {
+            e.preventDefault();
+            if(adminPassword.value==="2169") {
+                adminLoginError.style.display = "none";
+                closeAdminModal();
+                alert("Admin panel coming soon!");
+            } else {
+                adminLoginError.style.display="block";
+                adminLoginError.textContent = "Incorrect password. Try again.";
+                adminPassword.value = "";
+                adminPassword.focus();
+            }
+        };
+    </script>
+</body>
+</html>
